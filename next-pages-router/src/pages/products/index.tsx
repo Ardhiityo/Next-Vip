@@ -1,3 +1,4 @@
+import { fetcher } from "@/lib/swr/fetcher"
 import ProductView from "@/views/product"
 import Placeholder from "@/views/product/Placeholder"
 import { useEffect, useState } from "react"
@@ -7,7 +8,7 @@ type Product = {
     id: number,
     name: string,
     category: string,
-    price: number,
+    price: string,
     image: string
 }
 
@@ -25,18 +26,18 @@ export default function ProductPage() {
     // }, [])
 
     // SWR
-    const fetcher = async (url: string) => {
-        try {
-            const res = await fetch(url);
-            const body = await res.json();
-            return body.data;
-        } catch (err) {
-            console.error('Fetcher error:', err);
-            throw err;
-        }
-    };
-
     const { data, error, isLoading } = useSWR(`/api/products`, fetcher);
 
-    return isLoading ? <Placeholder /> : <ProductView products={data} />
+    useEffect(() => {
+        const formattedProducts = data?.map((product: Product) => ({
+            ...product,
+            price: (product.price as unknown as number).toLocaleString('id-ID', {
+                style: 'currency',
+                currency: 'IDR'
+            })
+        }))
+        setProducts(formattedProducts)
+    }, [data, isLoading])
+
+    return isLoading ? <Placeholder /> : <ProductView products={products} />
 }

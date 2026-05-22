@@ -5,7 +5,7 @@ type Product = {
     id: number,
     name: string,
     category: string,
-    price: number,
+    price: string,
     image: string
 }
 
@@ -14,7 +14,7 @@ export default function ProductView({ products }: { products: Product[] }) {
         <main className={style.container}>
             <h1 className={style.title}>Products</h1>
             <section className={style.product}>
-                {products.map((product) => (
+                {products?.map((product) => (
                     <div key={product.id} className={style.product__item}>
                         <Image
                             className={style.product__item__image}
@@ -29,15 +29,9 @@ export default function ProductView({ products }: { products: Product[] }) {
                             {product.name}
                         </h3>
                         <p>{product.category}</p>
-                        <p>
-                            {product.price.toLocaleString(
-                                'id-ID',
-                                { style: 'currency', currency: 'IDR' }
-                            )}
-                        </p>
+                        <p>{product.price}</p>
                     </div>
-                ))
-                }
+                ))}
             </section>
         </main>
     )
