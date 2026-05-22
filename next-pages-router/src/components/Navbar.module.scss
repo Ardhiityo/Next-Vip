@@ -4,10 +4,9 @@
   color: white;
   display: flex;
   justify-content: space-between;
-  padding: 20px 5%;
-}
-
-.navbar a {
-  text-decoration: none;
-  color: white;
+  padding: 20px 10%;
+  &__title {
+    font-size: 30px;
+    font-weight: bold;
+  }
 }
