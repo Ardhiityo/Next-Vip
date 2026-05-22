@@ -1,4 +1,4 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, getDoc, doc } from "firebase/firestore";
 import db from "./init";
 
 async function retrieveData(collectionName: string) {
@@ -15,6 +15,18 @@ async function retrieveData(collectionName: string) {
     }
 }
 
+async function retrieveDataById(collectionName: string, id: string) {
+    try {
+        const querySnapshot = await getDoc(doc(db, collectionName, id));
+
+        return querySnapshot.data();
+    } catch (error) {
+        console.error("Error retrieving product:", error);
+        return {};
+    }
+}
+
 export {
-    retrieveData
+    retrieveData,
+    retrieveDataById
 }
