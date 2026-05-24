@@ -1,18 +1,8 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
+import withAuth from "./middlewares/withAuth";
 
-// This function can be marked `async` if using `await` inside
-export function middleware(request: NextRequest) {
-    const isLogin = true;
-
-    if (isLogin) {
-        return NextResponse.next();
-    }
-
-    return NextResponse.redirect(new URL('/auth/login', request.url))
+export function mainMiddleware(req: NextRequest) {
+  return NextResponse.next();
 }
 
-// path yang ingin menggunakan middleware
-export const config = {
-    matcher: ['/products', '/about']
-}
+export default withAuth(mainMiddleware, ["/products", "/about"]);
