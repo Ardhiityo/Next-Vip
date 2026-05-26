@@ -18,18 +18,23 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (
-          credentials?.email === "johndoe@gmail.com" &&
-          credentials?.password
-        ) {
-          return {
-            id: "1",
-            name: "John Doe",
-            email: "johndoe@gmail.com",
-            role: "admin", // Menambahkan role
-          };
+        const url = `${process.env.APP_URL}/api/auth/login`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: credentials?.email,
+            password: credentials?.password,
+          }),
+        });
+
+        const body = await response.json();
+
+        if (response.status === 200) {
+          return body.data;
         }
-        return null;
+
+        throw new Error(body.message || "Invalid credentials");
       },
     }),
   ],
@@ -49,9 +54,13 @@ export const authOptions: NextAuthOptions = {
   Data Terbuang : Meskipun di fungsi authorize Anda mengembalikan objek user lengkap (misalnya menyertakan id , role , atau token ), data tambahan tersebut tidak akan diteruskan ke session client. Data tersebut hanya "mampir" saat proses login saja.
    */
   callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      return true;
+    },
     async jwt({ token, user }: any) {
       if (user) {
         token.id = user.id;
+        token.name = user.name;
         token.role = user.role;
       }
       return token;
@@ -59,6 +68,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }: any) {
       if (session.user) {
         session.user.id = token.id;
+        session.user.name = token.name;
         session.user.role = token.role;
       }
       return session;
@@ -66,9 +76,9 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.AUTH_SECRET,
   //custom page login, jika tidak ada maka akan menggunakan bawaan nextauth
-  //   pages: {
-  //     signIn: "/auth/login",
-  //   },
+  pages: {
+    signIn: "/auth/login",
+  },
 };
 
 export default NextAuth(authOptions);

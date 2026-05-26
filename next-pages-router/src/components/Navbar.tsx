@@ -1,5 +1,6 @@
 import { signIn, useSession, signOut } from "next-auth/react";
 import style from "./Navbar.module.scss";
+import Link from "next/link";
 
 export default function Navbar() {
   /**
@@ -17,7 +18,9 @@ export default function Navbar() {
 
   return (
     <nav className={style.navbar}>
-      <h1 className={style.navbar__title}>Next Store</h1>
+      <h1 className={style.navbar__title}>
+        <Link href="/">Next Store</Link>
+      </h1>
       {status === "loading" && <p>Loading...</p>}
       {data?.user && (
         <div>

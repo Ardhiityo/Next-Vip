@@ -9,8 +9,6 @@ import {
 } from "firebase/firestore";
 import db from "./init";
 import bcrypt from "bcrypt";
-import { NextResponse } from "next/server";
-import { NextApiResponse } from "next";
 
 async function retrieveData(collectionName: string) {
   try {
@@ -37,19 +35,66 @@ async function retrieveDataById(collectionName: string, id: string) {
   }
 }
 
-type UserData = {
+type UserSignUp = {
   name: string;
   email: string;
   password: string;
 };
 
+type UserSignIn = {
+  email: string;
+  password: string;
+};
+
+async function signIn(
+  userLogin: UserSignIn,
+  callback: ({
+    data,
+    message,
+    status,
+  }: {
+    data?: object;
+    message: string;
+    status: number;
+  }) => void,
+) {
+  const q = query(
+    collection(db, "users"),
+    where("email", "==", userLogin.email),
+  );
+
+  const snapshot = await getDocs(q);
+
+  if (!snapshot.empty) {
+    const user = snapshot.docs[0].data();
+
+    const isPasswordValid = await bcrypt.compare(
+      userLogin.password,
+      user.password,
+    );
+
+    if (isPasswordValid) {
+      return callback({
+        data: user,
+        message: "Sign In Successfully",
+        status: 200,
+      });
+    }
+  }
+
+  return callback({
+    message: "Email or Password is incorrect",
+    status: 400,
+  });
+}
+
 async function signUp(
-  userData: UserData,
+  userRegister: UserSignUp,
   callback: ({ message, status }: { message: string; status: number }) => void,
 ) {
   const q = query(
     collection(db, "users"),
-    where("email", "==", userData.email),
+    where("email", "==", userRegister.email),
   );
 
   const snapshot = await getDocs(q);
@@ -59,12 +104,13 @@ async function signUp(
   }
 
   await addDoc(collection(db, "users"), {
-    name: userData.name,
-    email: userData.email,
-    password: await bcrypt.hash(userData.password, 10),
+    name: userRegister.name,
+    email: userRegister.email,
+    password: await bcrypt.hash(userRegister.password, 10),
+    role: "member",
   });
 
   return callback({ message: "Register Successfully", status: 200 });
 }
 
-export { retrieveData, retrieveDataById, signUp };
+export { retrieveData, retrieveDataById, signUp, signIn };

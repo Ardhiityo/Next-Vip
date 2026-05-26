@@ -6,6 +6,8 @@ import {
   NextResponse,
 } from "next/server";
 
+const onlyAdmin = ["/admin"];
+
 export default function withAuth(
   middleware: NextMiddleware,
   requireAuth: string[] = [],
@@ -20,12 +22,20 @@ export default function withAuth(
       }); //ex : token : {name: xxx, id:xxx, role:xxx}
 
       if (!token) {
-        const url = new URL("/", req.url);
+        const url = new URL("/auth/login", req.url);
         //req.url : http://localhost:3000/products
-        //url : http://localhost:3000/
+        //url : http://localhost:3000/auth/login
+
+        url.searchParams.set("callbackUrl", req.url);
+
         return NextResponse.redirect(url);
+      } else {
+        if (onlyAdmin.includes(pathName) && token?.role !== "admin") {
+          return NextResponse.redirect(new URL("/", req.url));
+        }
       }
     }
+
     return middleware(req, next);
   };
 }
