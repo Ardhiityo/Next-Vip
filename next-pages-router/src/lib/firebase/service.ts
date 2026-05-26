@@ -6,9 +6,11 @@ import {
   query,
   where,
   addDoc,
+  updateDoc,
 } from "firebase/firestore";
 import db from "./init";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 async function retrieveData(collectionName: string) {
   try {
@@ -46,6 +48,12 @@ type UserSignIn = {
   password: string;
 };
 
+type UserSignInGoogle = {
+  name: string;
+  email: string;
+  image: string;
+};
+
 async function signIn(
   userLogin: UserSignIn,
   callback: ({
@@ -75,7 +83,10 @@ async function signIn(
 
     if (isPasswordValid) {
       return callback({
-        data: user,
+        data: {
+          id: snapshot.docs[0].id,
+          ...user,
+        },
         message: "Sign In Successfully",
         status: 200,
       });
@@ -113,4 +124,39 @@ async function signUp(
   return callback({ message: "Register Successfully", status: 200 });
 }
 
-export { retrieveData, retrieveDataById, signUp, signIn };
+async function signInWithGoogle(user: UserSignInGoogle) {
+  const q = query(collection(db, "users"), where("email", "==", user.email));
+
+  const snapshot = await getDocs(q);
+
+  if (!snapshot.empty) {
+    const oldData = snapshot.docs[0].data();
+    const newData = { name: user.name, image: user.image };
+    const docRef = doc(db, "users", snapshot.docs[0].id);
+    await updateDoc(docRef, newData);
+
+    return {
+      id: snapshot.docs[0].id,
+      ...oldData,
+      ...newData,
+    };
+  } else {
+    const data = {
+      name: user.name,
+      email: user.email,
+      password: await bcrypt.hash(crypto.randomBytes(8).toString("hex"), 10),
+      role: "member",
+      image: user.image,
+    };
+
+    await addDoc(collection(db, "users"), data);
+
+    const q = query(collection(db, "users"), where("email", "==", user.email));
+
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs[0].data();
+  }
+}
+
+export { retrieveData, retrieveDataById, signUp, signIn, signInWithGoogle };

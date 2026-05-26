@@ -40,6 +40,17 @@ export default function LoginView() {
     }
   }
 
+  async function handleGoogleLogin() {
+    const response = await signIn("google", {
+      redirect: false,
+      callbackUrl: callbackUrl,
+    });
+
+    if (response?.error) {
+      alert(response?.error);
+    }
+  }
+
   return (
     <>
       <Head>
@@ -58,6 +69,7 @@ export default function LoginView() {
           </div>
           <button type="submit">Login</button>
         </form>
+        <button onClick={handleGoogleLogin}>Login with Google</button>
       </section>
       <p>
         Belum punya akun? <Link href="/auth/register">Register</Link>

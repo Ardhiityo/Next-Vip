@@ -1,5 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import { signInWithGoogle } from "@/lib/firebase/service";
 
 /**
   Bagaimana Alur Kerjanya?
@@ -37,6 +39,10 @@ export const authOptions: NextAuthOptions = {
         throw new Error(body.message || "Invalid credentials");
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+    }),
   ],
   /**
    Callbacks digunakan sebagai "jembatan" untuk mengalirkan data. Alurnya adalah: 
@@ -57,8 +63,20 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, profile, email, credentials }) {
       return true;
     },
-    async jwt({ token, user }: any) {
-      if (user) {
+    async jwt({ token, user, account }: any) {
+      if (!account) return token;
+      if (account.provider === "google") {
+        const data = {
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        };
+        const newData = await signInWithGoogle(data);
+        token.id = newData.id;
+        token.name = newData.name;
+        token.role = newData.role;
+      }
+      if (account.provider === "credentials") {
         token.id = user.id;
         token.name = user.name;
         token.role = user.role;
@@ -71,6 +89,7 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name;
         session.user.role = token.role;
       }
+      if (session.user?.image) session.user.image = token.image;
       return session;
     },
   },
