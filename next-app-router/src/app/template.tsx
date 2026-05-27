@@ -7,8 +7,8 @@ export default function Template({ children }: { children: React.ReactNode }) {
   return (
     <>
       {/* Jika menggunakan template maka state tidak akan disimpan setiap request */}
-      <p>Template : {count}</p>
-      <button onClick={() => setCount(count + 1)}>Count</button>
+      {/* <p>Template : {count}</p>
+      <button onClick={() => setCount(count + 1)}>Count</button> */}
       {children}
     </>
   );

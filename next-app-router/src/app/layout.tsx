@@ -18,8 +18,8 @@ export default function RootLayout({
       <body className={inter.className}>
         <Navbar />
         <main className="max-w-6xl mx-auto mt-10">
-          <p>Layout : {count}</p>
-          <button onClick={() => setCount(count + 1)}>Count</button>
+          {/* <p>Layout : {count}</p>
+          <button onClick={() => setCount(count + 1)}>Count</button> */}
           {children}
         </main>
       </body>
