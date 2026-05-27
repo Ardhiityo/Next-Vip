@@ -1,6 +1,7 @@
 import { signIn, useSession, signOut } from "next-auth/react";
 import style from "./Navbar.module.scss";
 import Link from "next/link";
+import Script from "next/script";
 
 export default function Navbar() {
   /**
@@ -19,7 +20,10 @@ export default function Navbar() {
   return (
     <nav className={style.navbar}>
       <h1 className={style.navbar__title}>
-        <Link href="/">Next Store</Link>
+        <Link href="/" id="brands"></Link>
+        <Script strategy="lazyOnload">
+          {`document.getElementById('brands').innerHTML = 'Next Store'`}
+        </Script>
       </h1>
       {status === "loading" && <p>Loading...</p>}
       {data?.user && (

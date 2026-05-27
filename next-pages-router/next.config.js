@@ -2,8 +2,18 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['static.nike.com'],
+    // cara 1
+    // domains: ["static.nike.com"],
+    // cara 2
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "static.nike.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
