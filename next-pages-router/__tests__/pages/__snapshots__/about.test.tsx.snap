@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`About Page renders a heading 1`] = `
+<div>
+  <h1>
+    About Page
+  </h1>
+</div>
+`;
