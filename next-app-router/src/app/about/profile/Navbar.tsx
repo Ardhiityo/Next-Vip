@@ -1,7 +1,3 @@
 export default function Navbar() {
-  return (
-    <nav>
-      <h1>Navbar</h1>
-    </nav>
-  );
+  return <h1>Profile</h1>;
 }
