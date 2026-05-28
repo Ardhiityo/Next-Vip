@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -22,20 +24,21 @@ type Product = {
 
 async function getProducts() {
   // fetch data from api external
-  // const response = await fetch("https://fakestoreapi.com/products");
+  const response = await fetch("https://fakestoreapi.com/products", {
+    cache: "no-store",
+  });
 
   // fetch data from api internal
   // Cached by default. `force-cache` is the default option and can be ommitted.
-  const response = await fetch("http://localhost:3000/api/products", {
-    // cache: "no-store",
-    next: {
-      //revalidate berdasarkan waktu setelah 60 detik
-      // revalidate: 60,
-
-      //revalidate berdasarkan trigger manual by tags
-      tags: ["products"],
-    },
-  });
+  // const response = await fetch("http://localhost:3000/api/products", {
+  //   cache: "no-store",
+  //   // next: {
+  //   //   //revalidate berdasarkan waktu setelah 60 detik
+  //   //   // revalidate: 60,
+  //   //   //revalidate berdasarkan trigger manual by tags
+  //   //   // tags: ["products"],
+  //   // },
+  // });
 
   if (!response.ok) {
     throw new Error("Failed to fetch data");
@@ -52,11 +55,11 @@ export default async function ProductPage({ params }: Params) {
   const { slug } = params;
 
   //products from api external
-  // const products = await getProducts();
+  const products = await getProducts();
 
   // products from api internal
   // destructuring object (data )+ rename variable (products).
-  const { data: products } = await getProducts();
+  // const { data: products } = await getProducts();
 
   return (
     <>
