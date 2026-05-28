@@ -25,7 +25,17 @@ async function getProducts() {
   // const response = await fetch("https://fakestoreapi.com/products");
 
   // fetch data from api internal
-  const response = await fetch("http://localhost:3000/api/products");
+  // Cached by default. `force-cache` is the default option and can be ommitted.
+  const response = await fetch("http://localhost:3000/api/products", {
+    // cache: "no-store",
+    next: {
+      //revalidate berdasarkan waktu setelah 60 detik
+      // revalidate: 60,
+
+      //revalidate berdasarkan trigger manual by tags
+      tags: ["products"],
+    },
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch data");
