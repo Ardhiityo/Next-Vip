@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { products } from "@/data/products";
+import { retrieveDataById } from "@/app/lib/firebase/service";
 
 type Params = {
   params: {
@@ -11,9 +11,8 @@ export async function GET(request: Request, context: Params) {
   const { params } = context;
 
   if (params.id) {
-    const product = products.find(
-      (product) => product.id === parseInt(params.id),
-    );
+    const product = await retrieveDataById("products", params.id);
+
     if (product) {
       return NextResponse.json({ status: 200, data: product });
     }
