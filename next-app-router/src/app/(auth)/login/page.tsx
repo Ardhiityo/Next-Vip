@@ -1,9 +1,11 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   // http://localhost:3000/login
+  const { push } = useRouter();
 
   // Khusus custom page login
   async function handleLogin(event: any) {
@@ -16,8 +18,10 @@ export default function Page() {
     });
 
     if (!response?.ok) {
-      console.log(response?.error);
+      alert(response?.error);
     }
+
+    push("/products");
   }
 
   return (

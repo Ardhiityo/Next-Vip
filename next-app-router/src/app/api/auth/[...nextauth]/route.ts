@@ -10,15 +10,24 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        const user = { id: "1", password: "123", email: "narji@gmail.com" };
+        const email = credentials?.email || "";
+        const password = credentials?.password || "";
 
-        const email = credentials?.email;
-        const password = credentials?.password;
+        const response = await fetch("http://localhost:3000/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        });
 
-        if (email === user.email && password === user.password) {
-          return user;
+        const data = await response.json();
+
+        if (data.status === 200) {
+          return data.user;
         } else {
-          return null;
+          throw new Error(data.message);
         }
       },
     }),

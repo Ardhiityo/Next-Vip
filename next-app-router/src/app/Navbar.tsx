@@ -4,7 +4,7 @@ import { signIn, useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
   const pathName = usePathname();
-  const { status } = useSession();
+  const { status, data } = useSession();
 
   return (
     <nav className="flex justify-between px-28 py-5 items-center bg-gray-600 text-white">
@@ -29,14 +29,18 @@ export default function Navbar() {
             Profile
           </Link>
           {/*  Jika menggunakan signIn() walaupun tidak diset pages di nextauth maka akan menggunakan tampilan login nextauth */}
+          {status === "authenticated" && (
+            <div className="flex gap-3 items-center mx-4">
+              <span className="font-semibold">{data?.user?.name}</span>
+              <button onClick={() => signOut()}>Logout</button>
+            </div>
+          )}
+
           {status === "unauthenticated" && (
             <button onClick={() => signIn()}>Sign In</button>
           )}
           {status === "unauthenticated" && (
             <Link href="/register">Sign Up</Link>
-          )}
-          {status === "authenticated" && (
-            <button onClick={() => signOut()}>Logout</button>
           )}
         </li>
       </ul>

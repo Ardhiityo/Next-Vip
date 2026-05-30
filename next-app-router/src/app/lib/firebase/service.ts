@@ -90,6 +90,18 @@ type UserSignUp = {
   name: string;
 };
 
+type UserResponse = {
+  email: string;
+  name: string;
+  role: string;
+  id: string;
+};
+
+type UserSignIn = {
+  email: string;
+  password: string;
+};
+
 export async function signUp(
   userSignUp: UserSignUp,
   callback: ({ status, message }: { status: number; message: string }) => void,
@@ -106,10 +118,60 @@ export async function signUp(
     await addDoc(usersRef, {
       email: userSignUp.email,
       name: userSignUp.name,
+      role: "member",
       password: await bcrypt.hash(userSignUp.password, 10),
     });
 
     return callback({ status: 200, message: "Signed up successfully" });
+  } catch (error) {
+    callback({ status: 500, message: "Internal Server Error" });
+    console.error("Error signing up:", error);
+  }
+}
+
+export async function signIn(
+  userSignIn: UserSignIn,
+  callback: ({
+    status,
+    message,
+    user,
+  }: {
+    status: number;
+    message: string;
+    user?: UserResponse;
+  }) => void,
+): Promise<void> {
+  try {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("email", "==", userSignIn.email));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return callback({
+        status: 400,
+        message: "Email or Password is incorrect",
+      });
+    }
+
+    const user = querySnapshot.docs[0].data();
+
+    if (!(await bcrypt.compare(userSignIn.password, user.password))) {
+      return callback({
+        status: 400,
+        message: "Email or Password is incorrect",
+      });
+    }
+
+    return callback({
+      status: 200,
+      message: "Signed in successfully",
+      user: {
+        id: user.id as string,
+        email: user.email as string,
+        name: user.name as string,
+        role: user.role as string,
+      },
+    });
   } catch (error) {
     callback({ status: 500, message: "Internal Server Error" });
     console.error("Error signing up:", error);

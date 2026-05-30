@@ -1,7 +1,10 @@
+import { signIn } from "@/app/lib/firebase/service";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  const body = await request.json(); //{ name: 'Arya', role: 'Admin' }
+  const data = await request.json();
 
-  return NextResponse.json({ status: 200, data: body });
+  return await signIn(data, ({ status, message, user }) => {
+    return NextResponse.json({ status, message, user }, { status });
+  });
 }
