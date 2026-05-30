@@ -1,11 +1,13 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Page() {
   // http://localhost:3000/login
   const { push } = useRouter();
+  const params = useSearchParams();
+  const callbackUrl = params.get("callbackUrl") || "/";
 
   // Khusus custom page login
   async function handleLogin(event: any) {
@@ -14,14 +16,13 @@ export default function Page() {
       redirect: false,
       email: event.target.email.value,
       password: event.target.password.value,
-      callbackUrl: "http://localhost:3000/products",
     });
 
     if (!response?.ok) {
       alert(response?.error);
     }
 
-    push("/products");
+    push(callbackUrl);
   }
 
   return (

@@ -27,7 +27,28 @@ export const authOptions = {
         if (data.status === 200) {
           return data.user;
         } else {
-          throw new Error(data.message);
+          /**
+            ## Error Code Yang Diizinkan NextAuth:
+            NextAuth hanya mengenali error code berikut untuk ditampilkan di halaman login:
+            - CredentialsSignin
+            - AccessDenied
+            - Verification
+            - Default
+           */
+          throw new Error("CredentialsSignin");
+
+          /**
+           Jka kamu ingin menampilkan pesan error custom ("Email or Password is incorrect"), kamu harus:
+            1. Membuat halaman login kustom (bukan menggunakan NextAuth default)
+            2. Membaca query parameter error dan menampilkan pesan sendiri
+           */
+
+          /**
+             1. CredentialsSignin Login gagal (email/password salah) 
+             2. AccessDenied Login berhasil tapi tidak punya izin 
+             3. Verification Masalah verifikasi email/magic link 
+             4. Default Error umum/unknown
+          */
         }
       },
     }),
@@ -38,14 +59,16 @@ export const authOptions = {
       if (account?.provider === "credentials") {
         token.id = user.id;
         token.email = user.email;
+        token.role = user.role;
       }
       return token;
     },
 
     async session({ session, user, token }: any) {
-      if ("id" in token && "email" in token) {
+      if ("id" in token && "email" in token && "role" in token) {
         session.user.id = token.id;
         session.user.email = token.email;
+        session.user.role = token.role;
       }
       return session;
     },
