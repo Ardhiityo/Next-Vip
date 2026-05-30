@@ -1,5 +1,14 @@
-import { collection, getDoc, getDocs, doc } from "firebase/firestore";
+import {
+  collection,
+  getDoc,
+  getDocs,
+  doc,
+  where,
+  query,
+  addDoc,
+} from "firebase/firestore";
 import db from "./init";
+import bcrypt from "bcrypt";
 
 type Product = {
   id: string;
@@ -72,5 +81,37 @@ export async function retrieveDataById(
   } catch (error) {
     console.error("Error retrieving product:", error);
     return null;
+  }
+}
+
+type UserSignUp = {
+  email: string;
+  password: string;
+  name: string;
+};
+
+export async function signUp(
+  userSignUp: UserSignUp,
+  callback: ({ status, message }: { status: number; message: string }) => void,
+): Promise<void> {
+  try {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("email", "==", userSignUp.email));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      return callback({ status: 400, message: "Email already exists" });
+    }
+
+    await addDoc(usersRef, {
+      email: userSignUp.email,
+      name: userSignUp.name,
+      password: await bcrypt.hash(userSignUp.password, 10),
+    });
+
+    return callback({ status: 200, message: "Signed up successfully" });
+  } catch (error) {
+    callback({ status: 500, message: "Internal Server Error" });
+    console.error("Error signing up:", error);
   }
 }

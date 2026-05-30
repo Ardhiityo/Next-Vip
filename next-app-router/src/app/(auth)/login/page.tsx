@@ -2,7 +2,7 @@
 
 import { signIn } from "next-auth/react";
 
-export default function LoginPage() {
+export default function Page() {
   // http://localhost:3000/login
 
   // Khusus custom page login

@@ -30,7 +30,10 @@ export default function Navbar() {
           </Link>
           {/*  Jika menggunakan signIn() walaupun tidak diset pages di nextauth maka akan menggunakan tampilan login nextauth */}
           {status === "unauthenticated" && (
-            <button onClick={() => signIn()}>Login</button>
+            <button onClick={() => signIn()}>Sign In</button>
+          )}
+          {status === "unauthenticated" && (
+            <Link href="/register">Sign Up</Link>
           )}
           {status === "authenticated" && (
             <button onClick={() => signOut()}>Logout</button>
