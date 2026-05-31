@@ -3,6 +3,7 @@ import type { NextFetchEvent, NextMiddleware, NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 const onlyAdmin = ["/dashboard"];
+const authPath = ["/login", "/register", "/api/auth/signin"];
 
 export default function withAuth(
   middleware: NextMiddleware,
@@ -15,11 +16,15 @@ export default function withAuth(
       const token = await getToken({ req });
 
       if (!token) {
-        const url = new URL("/login", req.url);
-        url.searchParams.set("callbackUrl", req.url);
-        return NextResponse.redirect(url);
+        if (!authPath.includes(pathName)) {
+          const url = new URL("/login", req.url);
+          url.searchParams.set("callbackUrl", req.url);
+          return NextResponse.redirect(url);
+        }
       } else {
-        if (token?.role != "admin" && onlyAdmin.includes(pathName)) {
+        if (authPath.includes(pathName)) {
+          return NextResponse.redirect(new URL("/", req.url));
+        } else if (token?.role != "admin" && onlyAdmin.includes(pathName)) {
           const url = new URL("/", req.url);
           return NextResponse.redirect(url);
         }

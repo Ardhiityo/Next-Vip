@@ -37,10 +37,10 @@ export default function Navbar() {
           )}
 
           {status === "unauthenticated" && (
-            <button onClick={() => signIn()}>Sign In</button>
-          )}
-          {status === "unauthenticated" && (
-            <Link href="/register">Sign Up</Link>
+            <div className="flex gap-3 items-center mx-4">
+              <button onClick={() => signIn()}>Sign In</button>
+              <Link href="/register">Sign Up</Link>
+            </div>
           )}
         </li>
       </ul>

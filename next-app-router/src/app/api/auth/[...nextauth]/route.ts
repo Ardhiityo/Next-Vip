@@ -1,5 +1,7 @@
+import { signUpWithGoogle } from "@/app/lib/firebase/service";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 export const authOptions = {
   providers: [
@@ -52,14 +54,31 @@ export const authOptions = {
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
   ],
   secret: process.env.NEXTAUTH_SECRET as string,
   callbacks: {
     async jwt({ token, user, account, profile, isNewUser }: any) {
-      if (account?.provider === "credentials") {
+      if (account?.provider === "google") {
+        token.type = "google";
+        const userData = {
+          name: user.name,
+          email: user.email,
+        };
+        signUpWithGoogle(userData, ({ data }) => {
+          token.id = user.id;
+          token.name = data.name;
+          token.role = data.role;
+          token.email = user.email;
+        });
+      } else if (account?.provider === "credentials") {
         token.id = user.id;
-        token.email = user.email;
+        token.name = user.name;
         token.role = user.role;
+        token.email = user.email;
       }
       return token;
     },

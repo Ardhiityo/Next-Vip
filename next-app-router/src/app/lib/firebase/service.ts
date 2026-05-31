@@ -6,9 +6,11 @@ import {
   where,
   query,
   addDoc,
+  updateDoc,
 } from "firebase/firestore";
 import db from "./init";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 type Product = {
   id: string;
@@ -21,6 +23,29 @@ type Product = {
     rate: number;
     count: number;
   };
+};
+
+type UserSignUp = {
+  email: string;
+  password: string;
+  name: string;
+};
+
+type UserSignUpWithGoogle = {
+  email: string;
+  name: string;
+};
+
+type UserResponse = {
+  email: string;
+  name: string;
+  role: string;
+  id: string;
+};
+
+type UserSignIn = {
+  email: string;
+  password: string;
 };
 
 export async function retrieveData(collections: string): Promise<Product[]> {
@@ -83,24 +108,6 @@ export async function retrieveDataById(
     return null;
   }
 }
-
-type UserSignUp = {
-  email: string;
-  password: string;
-  name: string;
-};
-
-type UserResponse = {
-  email: string;
-  name: string;
-  role: string;
-  id: string;
-};
-
-type UserSignIn = {
-  email: string;
-  password: string;
-};
 
 export async function signUp(
   userSignUp: UserSignUp,
@@ -174,6 +181,55 @@ export async function signIn(
     });
   } catch (error) {
     callback({ status: 500, message: "Internal Server Error" });
+    console.error("Error signing up:", error);
+  }
+}
+
+export async function signUpWithGoogle(
+  userSignUp: UserSignUpWithGoogle,
+  callback: ({ data }: { data: UserResponse }) => void,
+): Promise<void> {
+  try {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("email", "==", userSignUp.email));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const user = querySnapshot.docs[0];
+      await updateDoc(doc(db, "users", user.id), {
+        name: userSignUp.name,
+      });
+
+      callback({
+        data: {
+          id: user.id,
+          name: user.data().name,
+          email: user.data().email,
+          role: user.data().role,
+        },
+      });
+    } else {
+      await addDoc(usersRef, {
+        email: userSignUp.email,
+        name: userSignUp.name,
+        role: "member",
+        password: await bcrypt.hash(crypto.randomBytes(16).toString("hex"), 10),
+      });
+
+      const q = query(usersRef, where("email", "==", userSignUp.email));
+      const querySnapshot = await getDocs(q);
+      const response = querySnapshot.docs[0];
+
+      callback({
+        data: {
+          id: response.id,
+          name: response.data().name,
+          email: response.data().email,
+          role: response.data().role,
+        },
+      });
+    }
+  } catch (error) {
     console.error("Error signing up:", error);
   }
 }
