@@ -30,8 +30,7 @@ export default function ItemList({ products }: { products: Product[] }) {
                 alt={product.title || "Product image"}
                 width={350}
                 height={350}
-                priority={true}
-                loading="eager"
+                loading="lazy"
               />
             )}
             <div>

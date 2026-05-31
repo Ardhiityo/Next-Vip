@@ -1,11 +1,11 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "./Navbar";
 import { useState } from "react";
-const inter = Inter({ subsets: ["latin"] });
+const popins = Poppins({ subsets: ["latin"], weight: ["400", "600"] });
 
 export default function RootLayout({
   children,
@@ -16,7 +16,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={popins.className}>
         <SessionProvider>
           <Navbar />
           <main className="max-w-6xl mx-auto mt-10">

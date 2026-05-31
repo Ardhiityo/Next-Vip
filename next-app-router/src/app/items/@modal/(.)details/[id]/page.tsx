@@ -26,7 +26,8 @@
  */
 
 import ProductDetail from "@/app/items/details/[id]/ProductDetail";
-import Modal from "@/app/items/Modal";
+import dynamic from "next/dynamic";
+const Modal = dynamic(() => import("@/app/items/Modal"));
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 

@@ -84,6 +84,7 @@ export default async function ProductPage({ params }: Params) {
                 alt={product.title}
                 width={350}
                 height={350}
+                loading="lazy"
               />
             </Link>
             <div>
